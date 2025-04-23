@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Delivery App</title>
+    <style>
+        :root{
+            --primary-color: #e74c3c;
+            --secondary-color: #f39c12;
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --accent-color: #2ecc71;
+        }
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+        }
+
+        body{
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container{
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header{
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background-color: var(--primary-color);
+            color:white;
+            border-radius:10px;
+        }
+
+        header h1{
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p{
+            font-size:1.1rem;
+            opacity: 0.9;
+        }
+
+        .order-section{
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .section-title{
+            font-size:1.5rem;
+            color:var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--bg-color);
+        }
+
+        .pizza-form{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, min-max(200px,1fr));
+            gap: 20px;
+            margin-bottom:20px;
+        }
+
+        .form-group{
+            margin-bottom:15px;
+        }
+
+        label{
+            display: block;
+            margin-bottom:5px;
+            font-weight:bold;
+        }
+
+        select, input, textarea{
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .button-container{
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button{
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color:white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover{
+            background-color: #c0392b;
+        }
+
+        button:disabled{
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .order-summary{
+            background-color: var(--bg-color);
+            padding:15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .summary-title{
+            font-weight:bold;
+            margin-bottom: 10px;
+            color:var(--primary-color);
+        }
+
+        .summary-item{
+            display:flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .summary-total{
+            font-weight: bold;
+            margin-top:10px;
+            text-align: right;
+        }
+
+        .tracker-section{
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            
+        }
+
+        .progress-bar-container{
+            margin:30px 0;
+            position: relative;
+        }
+
+        .progress-bar{
+            height: 10px;
+            background-color: #ecf0f1;
+            border-radius:5px;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .progress-fill{
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3, background-color 0.3s;
+        }
+
+        .progress-steps{
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: -15px;
+        }
+
+        .progress-step{
+            width:30px;
+            height: 30px;
+            background-color: #ecf0f1;
+            border-radius: 50%;
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            z-index:5;
+            position: relative;
+            border: 3px solid white;
+            color:white;
+            font-weight:bold;
+            margin-bottom: 3em;
+        }
+
+        .progress-step.active{
+            background-color: var(--primary-color);
+        }
+
+        .progress-step.completed{
+            background-color: var(--accent-color);
+        }
+
+        .step-label{
+            position: absolute;
+            top: 40px;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size:12px;
+            font-weight:bold;
+            color:black;
+            margin-left: 5em;
+        }
+
+        .delivery-info{
+            display:flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .delivery-detail{
+            flex:1;
+            min-width: 200px;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .detail-label{
+            font-size:14px;
+            color:#7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .detail-value{
+            font-size:24px;
+            font-weight:bold;
+        }
+
+        .status-updates{
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .status-title{
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px;
+            font-weight:bold;
+        }
+
+        .update-list{
+            max-height:200px;
+            overflow-y:auto;
+            padding:10px;
+        }
+
+        .update-item{
+            padding:10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .update-time{
+            font-weight: bold;
+            min-width:60px;
+        }
+
+        .update-icon{
+            margin: 0 10px;
+            font-size: 20px;
+        }
+
+        .update-text{
+            flex:1;
+        }
+
+        .notification{
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transform: translateX(200%);
+            transition:transform 0.3s ease;
+            z-index:100;
+        }
+
+        .notification.show{
+            transform: translateX(0);
+        }
+
+        .timer-info{
+            background-color: #f8f9fa;
+            padding:15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .timer-info h3{
+            color: var(--primary-color);
+            margin-bottom: 10px; 
+        }
+
+        footer{
+            text-align: center;
+            padding: 20px 0;
+            color: #7f8c8d;
+        }
+
+        @media(max-width:768px){
+            .pizza-form{
+                grid-template-columns: 1fr;
+            }
+
+            .delivery-info{
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header>
+            <h1>🍕 Pizza Pickup Tracker</h1>
+            <p>Order your pizza and track it in real-time from preparation to pickup</p>
+        </header>
+
+        <div class="order-section" id="orderSection">
+            <h2 class="section-title">Create your Order</h2>
+
+            <div class="pizza-form">
+                <div class="form-group">
+                    <label for="pizzasize">Pizza Size</label>
+                    <select id="pizzaSize">
+                        <option value="small">Small (10")</option>
+                        <option value="medium">Medium(12")</option>
+                        <option value="large">Large(14")</option>
+                        <option value="Xlarge">Extra Large(16")</option>
+                    </select>
+
+                    <!--Crust type-->
+                    <label for="crustType">Crust Type</label>
+                    <select id="crustType">
+                        <option value="thin">Thin crust</option>
+                        <option value = "regular">Regular Crust</option>
+                        <option value="thick">thick Crust</option>
+                        <option value="stuffed">Stuffed Crust</option>
+                    </select>
+
+                    <!--toppings-->
+                    <label for="toppings">Toppings (multiple)</label>
+                    <select id="toppings" multiple size="4">
+                        <option value="pepperoni">Pepperoni</option>
+                        <option value="mushrooms">Mushrooms</option>
+                        <option value="onions">Onions</option>
+                        <option value="sausage">Sausage</option>
+                        <option value="bacon">Bacon</option>
+                        <option value="extra_cheese">Extra Cheese</option>
+                        <option value="peppers">Peppers</option>
+                        <option value="olives">Olives</option>
+                        <option value="pineapple">Pineapple</option>
+                    </select>
+
+                    <!--Contact-->
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" placeholder="Jane Doe">
+
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="123-456-7890">
+
+                    <!--Summary-->
+                    <div class="order-summary">
+                        <div class="summary-title">Order Summary</div>
+
+                        <div class="summary-item">
+                            <span>Medium (12") Regular Crust Pizza</span>
+                            <span>12.99</span>
+
+                            <span>Selected Toppings (0)</span>
+                            <span>$0.00</span>
+                        </div>
+
+                        <div class="summary-total">
+                            Total: $12.99
+                        </div>
+                    </div>
+
+                   
+                    <div class="button-container">
+                        <button id="placeOrderBtn">Place Order</button>
+                    </div>
+                </div>
+            </div>
+         
+        </div>
+
+        
+        <div class="tracker-section" id="trackerSection">
+            <h2 class="section-title">Track your Order</h2>
+            
+            <div class="progress-bar-container">
+              
+                <div class="progress-bar">
+                    <div class="progress-fill" od="progressFill"></div>
+                </div>
+        </div>
+
+           
+            <div class="progress-steps">
+                <div class="progress-step active" id="step1">1
+                    <span class="step-label">Order Recieved!</span>
+                </div>
+                <div class="progress-step active" id="step1">2
+                    <span class="step-label">Preparing!</span>
+                </div>
+                <div class="progress-step active" id="step1">3
+                    <span class="step-label">In the Oven!</span>
+                </div>
+                <div class="progress-step active" id="step1">4
+                    <span class="step-label">Quality Check!</span>
+                </div>
+                <div class="progress-step active" id="step1">5
+                    <span class="step-label">Ready for Pickup!</span>
+                </div>
+            </div>
+
+           
+            <div class="delivery-info">
+                <div class="delivery-detail">
+                    <div class="detail-label">Ready In</div>
+                    <div class="detail-value" id="estimatedTime">--:--</div>
+                </div>
+
+                <div class="delivery-detail">
+                    <div class="delivery-label">Current Status</div>
+                    <div class = "detail-value" id="currentStatus">Order Received</div>
+                </div>
+
+                <div class="delivery-detail">
+                    <div class="delivery-label">Order Number</div>
+                    <div class="detail-value" id="orderNumber">#12345</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-updates">
+            <div class="status-title">Order updates</div>
+            <div class="update-list" id="updateList">
+                <!--Updates will be added here-->
+            </div>
+        </div>
+
+        <div class="timer-info">
+            <h3>JS Timer Methods used:</h3>
+            <p>This tracker uses <code>setTimeout()</code> to simulate each stage of the pizza
+            preparation process. For Demonstartin purposes, the process has been accelerated 
+            (1 minute in real life = 1 second in the demo). The timer for pickup readiness uses 
+            <code>setInterval()</code> to update every second, and <code>clearinterval()</code>
+            is used when the pizza is read for pickup.</p>
+        </div>
+
+        <!--Buttons-->
+        <div class="button-container">
+            <button id="newOrderBtn">Place Another Order</button>
+            <button id="pickedUpBtn" style = "background-color: var(--accent-color); display:none;">
+                Mark as Picked Up
+            </button>
+        </div>
+
+        <div class="notification" id="notification"> Your Order has been Placed!</div>
+
+    
+        <footer>
+            <p>Pizza Pickup Tracker - Demonstarting JavaScript timer Methods for Real-Time updates</p>
+        </footer>
+       
+    </div>
+
+    <script>
+        // DOM Elements
+        const orderSection = document.getElementById('orderSection');
+        const trackerSection = document.getElementById('trackerSection');
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const newOrderBtn = document.getElementById('newOrderBtn');
+        const pickedUpBtn = document.getElementById('pickedUpBtn');
+        const progressFill = document.getElementById('progressFill');
+        const estimatedTime = document.getElementById('estimatedTime');
+        const currentStatus = document.getElementById('currentStatus');
+        const orderNumber = document.getElementById('orderNumber');
+        const updateList = document.getElementById('updateList');
+        const notification = document.getElementById('notification');
+
+        // Step elements
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4'),
+            document.getElementById('step5')
+        ];
+
+        // Timer variables
+        let countdownTimer;
+        let preparationTimer;
+        // Randomly set delivery time
+        let minutesLeft = Math.floor(Math.random()* 6) + 15;
+        let secondsLeft = 0;
+        let currentStep = 0;
+
+        // Process steps with timing
+        // In a real app, these would be in minutes
+        const processSteps = [
+            { name: "Order Received", duration: 60, progress: 0},
+            { name: "Preparing", duration: 120, progress: 20},
+            { name: "In the Oven", duration: 180, progress: 40},
+            { name: "Quality Check", duration: 60, progress: 60},
+            { name: "Ready for Pickup", duration: 0, progress: 100}
+        ];
+
+        // Event Listeners
+        placeOrderBtn.addEventListener('click', startDeliveryProcess);
+        newOrderBtn.addEventListener('click', resetProcess);
+        pickedUpBtn.addEventListener('click', markAsPickedUp);
+
+        orderNumber.textContent = "#" + generateOrderNumber();
+
+        function startDeliveryProcess() {
+            // hide order, show tracker
+            orderSection.style.display = 'none';
+            trackerSection.style.display = 'block';
+
+            // show notification
+            showNotification("Your Order Has Been Placed!");
+
+            // add initial update
+            addUpdate("Order Recieved",
+                "Your order has been recieved and is being processed"
+            );
+
+            startCountdown();
+            startPreparation();
+
+            // scroll to tracker section
+            trackerSection.scrollIntoView({
+                behavior: 'smooth'
+            });
+
+            function startCountdown() { 
+                // Add log entry
+                addUpdate("Timer Started", "Countdown timer started using setInterval() to update every second."); 
+                // Update timer display   
+                updateTimerDisplay(); 
+
+                // Set interval to update every second 
+                countdownTimer = setInterval(() => {  
+                // Decrease time 
+                if (secondsLeft === 0){ 
+                    if (minutesLeft === 0) { 
+                        // Time's up should coincide with delivery complete
+                        clearInterval(countdownTimer); 
+                        // Ensure timer shows 00:00 
+                        estimatedTime.textContent = "00:00"; 
+                        return; 
+                    } 
+                    minutesLeft--; 
+                    secondsLeft = 59; 
+                } else { 
+                    secondsLeft--; 
+                } 
+        // Update display 
+        updateTimerDisplay(); 
+    }, 1000);
+};
+
+        function updateTimerDisplay() { 
+            estimatedTime.textContent = `${minutesLeft.toString().padStart(2, '0')}:
+            ${secondsLeft.toString().padStart(2, '0')}`; 
+        };
+
+        function startPreparation() { 
+            // Start with first step already active 
+            updateStepProgress(0); 
+
+                // Function to process next step 
+                function processNextStep() { 
+                    // If all steps are done, stop 
+                    if (currentStep >= processSteps.length - 1) { 
+                    // Set timer to 00:00 when ready for pickup 
+                    minutesLeft = 0; 
+                    secondsLeft = 0;
+                    updateTimerDisplay(); 
+                    showNotification("Your pizza is ready for pickup!"); 
+                    // Show the picked up button 
+                    pickedUpBtn.style.display = 'inline-block'; 
+                    return; 
+                }
+        // Move to next step 
+        currentStep++; 
+        // Update progress and status 
+        updateStepProgress (currentStep); 
+        // Set the timeout for the next step 
+        const currentDuration = processSteps [currentStep].duration; 
+            if (currentStep < processSteps.length - 1) { 
+            // Log the setTimeout usage for this step 
+                addUpdate("Timer Method", 
+                `Using setTimeout(${currentDuration * 1000}) to simulate 
+                "${processSteps [currentStep].name}" stage 
+                (${currentDuration / 60} minutes in real life)`); 
+                preparationTimer = setTimeout(processNextStep, currentDuration* 1000); 
+            } else { 
+                // This is the last step (Ready for Pickup) 
+                // Show the picked up button 
+                pickedUpBtn.style.display = 'inline-block'; 
+            } 
+
+        // Log the setTimeout usage for the first transition 
+        addUpdate("Timer Method", 
+        `Using setTimeout(${processSteps[0].duration * 1000}) to simulate moving to "${processSteps [1].name}" stage 
+        (${processSteps [0].duration / 60} minutes in real life)`); 
+        } 
+        // Set timeout for first step transition 
+        preparationTimer = setTimeout(processNextStep, processSteps [0].duration * 1000); 
+    };
+
+        function updateStepProgress (stepIndex) { 
+            // Update the progress bar 
+            progressFill.style.width = `${processSteps [stepIndex]. progress}%`; 
+
+            // Update status text 
+            currentStatus.textContent = processSteps [stepIndex].name; 
+            // Update step markers 
+            for (let i = 0; i <= stepIndex; i++) { 
+                if (i < stepIndex) { 
+                    steps[i].classList.add('active'); 
+                } 
+            }  
+            steps[i].classList.add('completed'); 
+            // Add update to the list 
+            addUpdate(
+                processSteps [stepIndex].name, 
+                getStatusMessage (stepIndex)  
+            ); 
+        }
+
+        function getStatusMessage (stepIndex) { 
+            const messages =[    
+                "We've received your order and it's been sent to the kitchen.", 
+                "Our chefs are preparing your pizza with fresh ingredients.", 
+                "Your pizza is now baking in our brick oven at 700", 
+                "We're checking that your pizza meets our quality standards.", 
+                "Your pizza is ready! Please come to the counter to pick up your order." 
+            ] 
+            return messages [stepIndex]; 
+        } 
+
+        function addUpdate (title, message) { 
+            const now = new Date(); 
+            const timeStr = now.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            }); 
+            const updateItem = document.createElement('div'); updateItem.className = 'update-item'; 
+            // Find appropriate icon 
+            let icon = '🕐'; 
+            if (title === "Order Received") icon = '📝'
+            if (title === "Preparing") icon = '🧑‍🍳'; 
+            if (title === "In the Oven") icon = '🔥'; 
+            if (title === "Quality Check") icon = '✅'; 
+            if (title === "Ready for Pickup") icon = '🔔';
+            if (title === "Timer Method") icon = '⏱️';
+            if (title === "Timer Started") icon = '⏰';
+            updateItem.innerHTML = `
+            <div class="update-time">${timeStr} </div> 
+            <div class="update-icon">${icon}</div> 
+            <div class="update-text"> 
+            <strong>${title}</strong><br> 
+            ${message} 
+            </div> 
+            `; 
+            updateList.prepend (updateItem); 
+        }
+
+        function showNotification (message) { 
+            notification.textContent = message; 
+            notification.classList.add('show'); 
+
+            setTimeout(() => { 
+                notification.classList.remove('show')
+            }, 3000); 
+        } 
+
+        function resetProcess() { 
+            // Clear all timers 
+            clearInterval (countdownTimer); clearTimeout(preparationTimer); 
+            // Reset variables with fixed 15 minute time 
+            minutesLeft = 15; 
+            secondsLeft = 0; 
+            currentStep = 0; 
+            // Reset UI 
+            progressFill.style.width = '0%'; 
+            currentStatus.textContent 
+            = 
+            'Order Received'; 
+            // Reset step markers 
+            steps.forEach(step => { 
+            step.classList.remove('active'); 
+            step.classList.remove('completed'); 
+            }); 
+            steps[0].classList.add('active'); 
+            // Clear updates updateList.innerHTML 
+            updateList.innerHTML=''; 
+            // Hide the picked up button 
+            pickedUpBtn.style.display = 'none'; 
+            // Generate new order number 
+            orderNumber.textContent ="#" + generateOrderNumber(); 
+            // Hide tracker and show order form 
+            trackerSection.style.display = 'none'; 
+            orderSection.style.display = 'block'; 
+            // Scroll to top 
+            window.scrollTo({ 
+            top: 0, 
+            behavior: 'smooth' 
+            }); 
+        }
+
+        function generateOrderNumber() { 
+            return Math.floor(10000+ Math.random() * 90000); 
+        } 
+
+        function markAsPickedUp() { 
+            // Add final update 
+            addUpdate("Picked Up", 
+            "Pizza has been picked up by the customer. Enjoy your meal!"); 
+            // Stop any remaining timers clearInterval (countdown Timer); clearTimeout(preparationTimer); 
+            // Update display 
+            currentStatus.textContent = "Picked Up"; 
+            estimatedTime.textContent = "00:00"; 
+            // Update progress display (make it green) progressFill.style.width = "100%"; 
+            progressFill.style.backgroundColor = "var (--accent-color)"; 
+            // Show notification 
+            showNotification ("Thank you! Enjoy your pizza!"); 
+            // Disable the picked up button pickedUpBtn.disabled = true; 
+            pickedUpBtn.textContent = "Picked Up ✓"; 
+            // Log the timer methods used 
+            addUpdate("Timer Method", 
+            "All timers stopped with clearInterval() and clearTimeout()");  
+        } 
+    }
+    </script>
+</body>
+</html>
